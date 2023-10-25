@@ -8,12 +8,27 @@ import (
 	"strings"
 	"net"
 	"time"
+	"encoding/json"
+    "io/ioutil"
 )
+
+type ToolConfig struct {
+    Name      string `json:"name"`
+    Repository string `json:"repository"`
+    Command    string `json:"command"`
+}
 
 func main() {
 	// Display the custom banner
 	displayPinkBanner()
-
+	
+     // Read the tool configuration from a JSON file
+	 config, err := readToolConfig("tool_config.json")
+	 if err != nil {
+		 fmt.Printf("Error reading tool configuration: %v\n", err)
+		 return
+	 }
+	 
 	// Initialize the current directory
 	currentDirectory, err := os.Getwd()
 	if err != nil {
@@ -21,15 +36,17 @@ func main() {
 		return
 	}
 
-	// Create a map of tools with their names and corresponding commands
-	tools := map[string]string{
-		"recon_modbus_functions": "python recon_modbus_functions.py", // Replace with the actual command
-		"icssploit":             "python icssploit.py",             // Replace with the actual command
-		"testauth":              "testauth",                       // Replace with the actual command
-	}
+	// Clone and execute the tools based on the configuration
+    for _, tool := range config.Tools {
+        fmt.Printf("Cloning and executing %s...\n", tool.Name)
+        if err := cloneAndExecuteTool(tool, currentDirectory); err != nil {
+            fmt.Printf("Error cloning and executing %s: %v\n", tool.Name, err)
+            continue
+        }
+    }
 
-	// Continue with the main menu
-	startMainMenu(tools, currentDirectory)
+    // Continue with the main menu
+    startMainMenu()
 }
 
 func displayPinkBanner() {
@@ -45,6 +62,43 @@ mmmmm                              mmmmm    mmm   mmmm
 	fmt.Print("\033[95m")
 	fmt.Print(banner)
 	fmt.Print("\033[0m")
+}
+
+
+func readToolConfig(filename string) (*ToolConfig, error) {
+    // Read the tool configuration from the JSON file.
+    data, err := ioutil.ReadFile(filename)
+    if err != nil {
+        return nil, err
+    }
+
+    var config ToolConfig
+    if err := json.Unmarshal(data, &config); err != nil {
+        return nil, err
+    }
+
+    return &config, nil
+}
+
+func cloneAndExecuteTool(tool ToolConfig, currentDirectory string) error {
+    // Clone the tool repository
+    cloneCmd := exec.Command("git", "clone", tool.Repository, tool.Name)
+    cloneCmd.Stdout = os.Stdout
+    cloneCmd.Stderr = os.Stderr
+    if err := cloneCmd.Run(); err != nil {
+        return err
+    }
+
+    // Change to the tool's directory
+    if err := os.Chdir(tool.Name); err != nil {
+        return err
+    }
+
+    // Execute the tool's command
+    cmd := exec.Command("bash", "-c", tool.Command)
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+    return cmd.Run()
 }
 
 func startMainMenu(tools map[string]string, currentDirectory string) {
@@ -205,4 +259,5 @@ func readResponse(conn net.Conn) (string, error) {
 	}
 	return string(resp[:n]), nil
 }
+
 
