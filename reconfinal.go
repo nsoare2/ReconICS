@@ -75,54 +75,56 @@ func displayPinkBanner() {
 	   
 	   
 	   func startMainMenu(currentDirectory string, toolConfig []ToolConfig) {
-			   // Define your tools with their names and corresponding commands
-			   tools := make(map[string]ToolConfig)
-	   
-			   for _, tool := range toolConfig {
-					   tools[tool.Name] = tool
-			   }
-	   
-			   tools["testauth"] = ToolConfig{
-					   Name: "testauth",
-					   Repository: "",
-					   Command: "TestarUserandPass",
-			   }
-	   
-			   for {
-					   fmt.Print("Available Tools:\n")
-					   for toolName := range tools {
-						for toolName := range tools {
-							fmt.Printf("  - %s\n", toolName)
-					}
-					fmt.Print("Enter the tool name (or 'help' for help, 'exit' to exit): ")
-					command := readUserInput()
+		// Define your tools with their names and corresponding commands
+		tools := make(map[string]ToolConfig)
 	
-					if command == "exit" {
-							fmt.Println("Bye!")
-							return
-					}
+		for _, tool := range toolConfig {
+			tools[tool.Name] = tool
+		}
 	
-					if command == "help" {
-							displayHelp()
-							continue
-					}
+		tools["testauth"] = ToolConfig{
+			Name: "testauth",
+			Repository: "",
+			Command: "TestarUserandPass",
+		}
 	
-					tool, found := tools[command]
-					if !found {
-							fmt.Printf("Tool '%s' not found. Please select a valid tool or 'help' for options.\n", command)
-							continue
-					}
-	
-					if tool.Command == "TestarUserandPass" {
-							TestarUserandPass()
-					} else {
-							err := executeTool(tool, currentDirectory)
-							if err != nil {
-									fmt.Printf("Error executing tool '%s': %v\n", command, err)
-							}
-					}
+		for {
+			fmt.Print("Available Tools:\n")
+			for toolName := range tools {
+				for toolName := range tools {
+					fmt.Printf("  - %s\n", toolName)
+				}
 			}
+			fmt.Print("Enter the tool name (or 'help' for help, 'exit' to exit): ")
+			command := readUserInput()
+	
+			if command == "exit" {
+				fmt.Println("Bye!")
+				return
+			}
+	
+			if command == "help" {
+				displayHelp()
+				continue
+			}
+	
+			tool, found := tools[command]
+			if !found {
+				fmt.Printf("Tool '%s' not found. Please select a valid tool or 'help' for options.\n", command)
+				continue
+			}
+	
+			if tool.Command == "TestarUserandPass" {
+				TestarUserandPass()
+			} else {
+				err := executeTool(tool, currentDirectory)
+				if err != nil {
+					fmt.Printf("Error executing tool '%s': %v\n", command, err)
+				}
+			}
+		}
 	}
+	
 	
 	func executeTool(tool ToolConfig, currentDirectory string) error {
 			toolPath := filepath.Join(currentDirectory, "tools", tool.Repository)
