@@ -94,7 +94,6 @@ func displayPinkBanner() {
 			for toolName := range tools {
 					fmt.Printf("  - %s\n", toolName)
 				}
-			}
 			fmt.Print("Enter the tool name (or 'help' for help, 'exit' to exit): ")
 			command := readUserInput()
 	
@@ -123,7 +122,7 @@ func displayPinkBanner() {
 				}
 			}
 		}
-		
+	   }
 	
 	func executeTool(tool ToolConfig, currentDirectory string) error {
 			repoURL, err := url.Parse(tool.Repository)
