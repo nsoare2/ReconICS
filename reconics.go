@@ -67,7 +67,7 @@ mmmmm                              mmmmm    mmm   mmmm
 
 func readToolConfig(filename string) ([]ToolConfig, error) {
     // Read the tool configuration from the JSON file.
-    data, err := ioutil.ReadFile(reconics.cfg)
+    data, err := ioutil.ReadFile(filename)
     if err != nil {
         return nil, err
     }
