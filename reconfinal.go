@@ -104,10 +104,11 @@ func cloneAndExecuteTool(tool ToolConfig, currentDirectory string) error {
 }
 
 func startMainMenu(currentDirectory string) {
-	 // Define your tools as needed
+    // Define your tools with their names and corresponding commands
     tools := map[string]string{
         "testauth": "testauth",
-        // Add more tools here as needed
+        "modbus": "python recon_modbus_functions/recon_modbus_functions.py", // Update this command to match your script location
+        "icssploit": "python icssploit/icssploit.py", // Update this command to match your script location
     }
 
     for {
@@ -140,19 +141,16 @@ func startMainMenu(currentDirectory string) {
         // Execute the selected tool
         fmt.Printf("Executing '%s'...\n", command)
 
-        if command == "testauth" {
-            TestarUserandPass()
-        } else {
-            cmd := exec.Command("bash", "-c", toolCommand)
-            cmd.Stdout = os.Stdout
-            cmd.Stderr = os.Stderr
+        cmd := exec.Command("bash", "-c", toolCommand)
+        cmd.Stdout = os.Stdout
+        cmd.Stderr = os.Stderr
 
-            if err := cmd.Run(); err != nil {
-                fmt.Printf("Error executing tool '%s': %v\n", command, err)
-            }
+        if err := cmd.Run(); err != nil {
+            fmt.Printf("Error executing tool '%s': %v\n", command, err)
         }
     }
 }
+
 
 func readUserInput() string {
 	var input string
