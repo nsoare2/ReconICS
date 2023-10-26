@@ -19,25 +19,25 @@ type ToolConfig struct {
 }
 
 func main() {
-	// Display the custom banner
-	displayPinkBanner()
-	
-     // Read the tool configuration from a JSON file
-	 config, err := readToolConfig("tool_config.json")
-	 if err != nil {
-		 fmt.Printf("Error reading tool configuration: %v\n", err)
-		 return
-	 }
-	 
-	// Initialize the current directory
-	currentDirectory, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("Error getting the current directory: %v\n", err)
-		return
-	}
+    // Display the custom banner
+    displayPinkBanner()
 
-	// Clone and execute the tools based on the configuration
-    for _, tool := range config.Tools {
+    // Read the tool configuration from "reconics.cfg"
+    toolConfig, err := readToolConfig("reconics.cfg")
+    if err != nil {
+        fmt.Printf("Error reading tool configuration: %v\n", err)
+        return
+    }
+
+    // Initialize the current directory
+    currentDirectory, err := os.Getwd()
+    if err != nil {
+        fmt.Printf("Error getting the current directory: %v\n", err)
+        return
+    }
+
+    // Clone and execute the tools based on the configuration
+    for _, tool := range toolConfig {
         fmt.Printf("Cloning and executing %s...\n", tool.Name)
         if err := cloneAndExecuteTool(tool, currentDirectory); err != nil {
             fmt.Printf("Error cloning and executing %s: %v\n", tool.Name, err)
@@ -65,19 +65,22 @@ mmmmm                              mmmmm    mmm   mmmm
 }
 
 
-func readToolConfig(filename string) (*ToolConfig, error) {
+func readToolConfig(filename string) ([]ToolConfig, error) {
     // Read the tool configuration from the JSON file.
     data, err := ioutil.ReadFile(reconics.cfg)
     if err != nil {
         return nil, err
     }
 
-    var config ToolConfig
+    var config struct {
+        Tools []ToolConfig `json:"tools"`
+    }
+    
     if err := json.Unmarshal(data, &config); err != nil {
         return nil, err
     }
 
-    return &config, nil
+    return config.Tools, nil
 }
 
 func cloneAndExecuteTool(tool ToolConfig, currentDirectory string) error {
