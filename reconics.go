@@ -72,16 +72,15 @@ func readToolConfig(filename string) ([]ToolConfig, error) {
         return nil, err
     }
 
-    var config struct {
-        Tools []ToolConfig `json:"tools"`
-    }
-    
+    var config []ToolConfig  // Change this line to use a slice instead of a struct
+
     if err := json.Unmarshal(data, &config); err != nil {
         return nil, err
     }
 
-    return config.Tools, nil
+    return config, nil
 }
+
 
 func cloneAndExecuteTool(tool ToolConfig, currentDirectory string) error {
     // Clone the tool repository
