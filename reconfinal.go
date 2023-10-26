@@ -11,6 +11,7 @@ import (
         "encoding/json"
         "io/ioutil"
         "path/filepath"
+		"net/url"
 )
 
 type ToolConfig struct {
@@ -91,7 +92,6 @@ func displayPinkBanner() {
 		for {
 			fmt.Print("Available Tools:\n")
 			for toolName := range tools {
-				for toolName := range tools {
 					fmt.Printf("  - %s\n", toolName)
 				}
 			}
@@ -123,13 +123,18 @@ func displayPinkBanner() {
 				}
 			}
 		}
-	}
-	
+		
 	
 	func executeTool(tool ToolConfig, currentDirectory string) error {
-			toolPath := filepath.Join(currentDirectory, "tools", tool.Repository)
+			repoURL, err := url.Parse(tool.Repository)
+			if err != nil {
+				return err
+    }
+    repoName := filepath.Base(repoURL.Path)
+			// Construct the toolPath using the repository name
+			toolPath := filepath.Join(currentDirectory, "tools", repoName)
 			// Clone the tool repository
-			cloneCmd := exec.Command("git", "clone", toolPath, tool.Name)
+			cloneCmd := exec.Command("git", "clone", tool.Repository, toolPath)
 			cloneCmd.Stdout = os.Stdout
 			cloneCmd.Stderr = os.Stderr
 			if err := cloneCmd.Run(); err != nil {
@@ -137,7 +142,7 @@ func displayPinkBanner() {
 			}
 	
 			// Change to the tool's directory
-			if err := os.Chdir(tool.Name); err != nil {
+			if err := os.Chdir(toolPath); err != nil {
 					return err
 			}
 	
