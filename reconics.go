@@ -9,7 +9,7 @@ import (
 	"net"
 	"time"
 	"encoding/json"
-    "io/ioutil"
+    	"io/ioutil"
 )
 
 type ToolConfig struct {
@@ -46,7 +46,7 @@ func main() {
     }
 
     // Continue with the main menu
-    startMainMenu()
+    startMainMenu(currentDirectory)
 }
 
 func displayPinkBanner() {
@@ -104,49 +104,55 @@ func cloneAndExecuteTool(tool ToolConfig, currentDirectory string) error {
     return cmd.Run()
 }
 
-func startMainMenu(tools map[string]string, currentDirectory string) {
-	for {
-		fmt.Print("Available Tools:\n")
-		for toolName := range tools {
-			fmt.Printf("  - %s\n", toolName)
-		}
-		fmt.Print("Enter the tool name (or 'help' for help, 'exit' to exit): ")
-		command := readUserInput()
+func startMainMenu(currentDirectory string) {
+	 // Define your tools as needed
+    tools := map[string]string{
+        "testauth": "testauth",
+        // Add more tools here as needed
+    }
 
-		if command == "exit" {
-			fmt.Println("Bye!")
-			return
-		}
+    for {
+        fmt.Print("Available Tools:\n")
+        for toolName := range tools {
+            fmt.Printf("  - %s\n", toolName)
+        }
+        fmt.Print("Enter the tool name (or 'help' for help, 'exit' to exit): ")
+        command := readUserInput()
 
-		if command == "help" {
-			displayHelp()
-			continue
-		}
+        if command == "exit" {
+            fmt.Println("Bye!")
+            return
+        }
 
-		toolCommand, found := tools[command]
-		if !found {
-			fmt.Printf("Tool '%s' not found. Please select a valid tool or 'help' for options.\n", command)
-			continue
-		}
+        if command == "help" {
+            displayHelp()
+            continue
+        }
 
-		// Change to the current directory
-		os.Chdir(currentDirectory)
+        toolCommand, found := tools[command]
+        if !found {
+            fmt.Printf("Tool '%s' not found. Please select a valid tool or 'help' for options.\n", command)
+            continue
+        }
 
-		// Execute the selected tool
-		fmt.Printf("Executing '%s'...\n", command)
+        // Change to the current directory
+        os.Chdir(currentDirectory)
 
-		if command == "testauth" {
-			TestarUserandPass()
-		} else {
-			cmd := exec.Command("bash", "-c", toolCommand)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
+        // Execute the selected tool
+        fmt.Printf("Executing '%s'...\n", command)
 
-			if err := cmd.Run(); err != nil {
-				fmt.Printf("Error executing tool '%s': %v\n", command, err)
-			}
-		}
-	}
+        if command == "testauth" {
+            TestarUserandPass()
+        } else {
+            cmd := exec.Command("bash", "-c", toolCommand)
+            cmd.Stdout = os.Stdout
+            cmd.Stderr = os.Stderr
+
+            if err := cmd.Run(); err != nil {
+                fmt.Printf("Error executing tool '%s': %v\n", command, err)
+            }
+        }
+    }
 }
 
 func readUserInput() string {
